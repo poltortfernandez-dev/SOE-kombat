@@ -1,0 +1,39 @@
+name: Publicar Moro Kombat en Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Preparar el juego
+        run: |
+          test -s index.html
+          test -s index.wasm
+          test -s index.pck
+          mkdir public
+          cp index.* public/
+          cp *-LICENSE.txt *-OFL.txt LICENCIAS.txt public/
+          touch public/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - uses: actions/deploy-pages@v5
+        id: deployment
