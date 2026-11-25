@@ -1,4 +1,4 @@
-name: Publicar Moro Kombat en Pages
+name: Comprobar archivos de Moro Kombat
 
 on:
   push:
@@ -7,33 +7,18 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
+# Pages publica automáticamente main desde la raíz (Settings > Pages).
+# Este flujo comprueba los archivos sin iniciar una segunda publicación.
 jobs:
-  deploy:
+  comprobar:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - name: Preparar el juego
+      - name: Comprobar exportación web
         run: |
           test -s index.html
+          test -s index.js
           test -s index.wasm
           test -s index.pck
-          mkdir public
-          cp index.* public/
-          cp *-LICENSE.txt *-OFL.txt LICENCIAS.txt public/
-          touch public/.nojekyll
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
-      - uses: actions/deploy-pages@v5
-        id: deployment
+          test -f .nojekyll
